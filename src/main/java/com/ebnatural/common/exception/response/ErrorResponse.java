@@ -1,4 +1,4 @@
-package com.ebnatural.common.exception;
+package com.ebnatural.common.exception.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class ErrorResponse {
-    private HttpStatus status;
+    private HttpStatus httpStatus;
     private Integer code;
     private String message;
     private List<ValidationError> errors;
