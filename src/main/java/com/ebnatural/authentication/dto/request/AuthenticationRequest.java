@@ -1,4 +1,4 @@
-package com.ebnatural.authentication.dto;
+package com.ebnatural.authentication.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

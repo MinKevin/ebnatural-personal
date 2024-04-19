@@ -9,7 +9,10 @@ public enum ErrorCode {
     BINDING_EXCEPTION(HttpStatus.BAD_REQUEST, "binding exception"),
 
     //유저 정보 관련 API
-    USERNAME_NOT_FOUND_EXCEPTION(HttpStatus.BAD_REQUEST, "username not found");
+    USERNAME_NOT_FOUND_EXCEPTION(HttpStatus.BAD_REQUEST, "username not found"),
+    ALREADY_REGISTERED_USER_EXCEPTION(HttpStatus.BAD_REQUEST, "already registered user"),
+    PASSWORD_NOT_MATCH_EXCEPTION(HttpStatus.BAD_REQUEST, "password not match"),
+    TERMS_OF_SERVICE_AGREEMENT_NEED_EXCEPTION(HttpStatus.BAD_REQUEST, "terms of service agreement need");
 
     private final HttpStatus httpStatus;
     private final String message;
