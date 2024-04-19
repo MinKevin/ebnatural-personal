@@ -1,7 +1,7 @@
 package com.ebnatural.common.jwt;
 
 import com.ebnatural.authentication.repository.MemberRepository;
-import com.ebnatural.authentication.domain.Role;
+import com.ebnatural.authentication.domain.MemberRole;
 import com.ebnatural.authentication.dto.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -29,7 +29,8 @@ public class JwtProvider {
     @Value("${jwt.secret.key}")
     private String salt;
     private Key secretKey;
-    private final long exp = 1000L * 60 * 60;
+    private final long accessTokenExpireTime = 1000L * 60 * 60;
+    private final long refreshTokenExpireTime = 1000L * 60 * 60 * 24 * 7;
     private final MemberRepository memberRepository;
 
     @PostConstruct
@@ -37,14 +38,26 @@ public class JwtProvider {
         secretKey = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createToken(String account, List<Role> roles) {
+    public String createAccessToken(String account, MemberRole memberRole) {
         Claims claims = Jwts.claims().setSubject(account);
-        claims.put("roles", roles);
+        claims.put("role", memberRole);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + exp))
+                .setExpiration(new Date(now.getTime() + accessTokenExpireTime))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String createRefreshToken(String account, MemberRole memberRole) {
+        Claims claims = Jwts.claims().setSubject(account);
+        claims.put("role", memberRole);
+        Date now = new Date();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + refreshTokenExpireTime))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }

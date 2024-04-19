@@ -11,4 +11,5 @@ import java.util.Optional;
 @Transactional
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUsername(String username);
+    boolean existsByUsername(String username);
 }
