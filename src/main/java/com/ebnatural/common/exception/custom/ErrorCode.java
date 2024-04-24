@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
     BINDING_EXCEPTION(HttpStatus.BAD_REQUEST, "binding exception"),
+    INVALID_TOKEN_EXCEPTION(HttpStatus.BAD_REQUEST, "invalid token"),
 
     //유저 정보 관련 API
     USERNAME_NOT_FOUND_EXCEPTION(HttpStatus.BAD_REQUEST, "username not found"),

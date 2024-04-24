@@ -3,6 +3,7 @@ package com.ebnatural.common.jwt;
 import com.ebnatural.authentication.repository.MemberRepository;
 import com.ebnatural.authentication.domain.MemberRole;
 import com.ebnatural.authentication.dto.CustomUserDetails;
+import com.ebnatural.common.exception.custom.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -77,17 +78,13 @@ public class JwtProvider {
     }
 
     public boolean validateToken(String token) {
-        try {
-            // Bearer 검증
-            if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
-            } else {
-                token = token.split(" ")[1].trim();
-            }
+        // Bearer 검증
+        if (token.startsWith("BEARER")) {
+            token = token.split(" ")[1].trim();
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             // 만료되었을 시 false
             return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
         }
+        throw new InvalidTokenException();
     }
 }
