@@ -3,6 +3,8 @@ package com.ebnatural.common.jwt;
 import com.ebnatural.authentication.repository.MemberRepository;
 import com.ebnatural.authentication.domain.MemberRole;
 import com.ebnatural.authentication.dto.CustomUserDetails;
+import com.ebnatural.authentication.service.AuthenticationService;
+import com.ebnatural.common.exception.custom.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -12,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,9 +32,11 @@ public class JwtProvider {
     @Value("${jwt.secret.key}")
     private String salt;
     private Key secretKey;
-    private final long accessTokenExpireTime = 1000L * 60 * 60;
-    private final long refreshTokenExpireTime = 1000L * 60 * 60 * 24 * 7;
-    private final MemberRepository memberRepository;
+    @Value("${jwt.expire-time.access}")
+    private long accessTokenExpireTime;
+    @Value("${jwt.expire-time.refresh}")
+    private long refreshTokenExpireTime;
+    private final AuthenticationService authenticationService;
 
     @PostConstruct
     private void init() {
@@ -63,8 +68,7 @@ public class JwtProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = new CustomUserDetails(memberRepository.findByUsername(getUsername(token))
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid authentication.")));
+        UserDetails userDetails = authenticationService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
@@ -77,17 +81,13 @@ public class JwtProvider {
     }
 
     public boolean validateToken(String token) {
-        try {
-            // Bearer 검증
-            if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
-            } else {
-                token = token.split(" ")[1].trim();
-            }
+        // Bearer 검증
+        if (token.startsWith("BEARER")) {
+            token = token.split(" ")[1].trim();
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             // 만료되었을 시 false
             return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
         }
+        throw new InvalidTokenException();
     }
 }
