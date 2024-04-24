@@ -14,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,8 +32,10 @@ public class JwtProvider {
     @Value("${jwt.secret.key}")
     private String salt;
     private Key secretKey;
-    private final long accessTokenExpireTime = 1000L * 60 * 60;
-    private final long refreshTokenExpireTime = 1000L * 60 * 60 * 24 * 7;
+    @Value("${jwt.expire-time.access}")
+    private long accessTokenExpireTime;
+    @Value("${jwt.expire-time.refresh}")
+    private long refreshTokenExpireTime;
     private final AuthenticationService authenticationService;
 
     @PostConstruct
