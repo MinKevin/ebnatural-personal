@@ -3,6 +3,7 @@ package com.ebnatural.common.jwt;
 import com.ebnatural.authentication.repository.MemberRepository;
 import com.ebnatural.authentication.domain.MemberRole;
 import com.ebnatural.authentication.dto.CustomUserDetails;
+import com.ebnatural.authentication.service.AuthenticationService;
 import com.ebnatural.common.exception.custom.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -32,7 +33,7 @@ public class JwtProvider {
     private Key secretKey;
     private final long accessTokenExpireTime = 1000L * 60 * 60;
     private final long refreshTokenExpireTime = 1000L * 60 * 60 * 24 * 7;
-    private final MemberRepository memberRepository;
+    private final AuthenticationService authenticationService;
 
     @PostConstruct
     private void init() {
@@ -64,8 +65,7 @@ public class JwtProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = new CustomUserDetails(memberRepository.findByUsername(getUsername(token))
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid authentication.")));
+        UserDetails userDetails = authenticationService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
